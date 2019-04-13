@@ -8,6 +8,7 @@
         android:id="@+id/back"
         android:layout_width="50dp"
         android:padding="12dp"
+        android:background="@drawable/btn_bg"
         android:layout_height="50dp"
         android:src="@drawable/back" />
 

@@ -2,12 +2,17 @@ package com.geaosu.huanxin;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,14 +25,19 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     private TextView mTitle;
 
 
-    private EditText mUser;
-    private EditText mPwd;
-    private TextView mLogin;
-    private TextView mNewUser;
-    private ImageView mShowPwd;
-    private RadioButton mSavePad;
-    private RadioButton mAutoLogin;
+    private EditText etUserName;
+    private ImageView ivClearUserName;
+    private EditText etPwd;
+    private TextView tvLogin;
+    private TextView tvNewUser;
+    private ImageView ivShowPwd;
+    private ImageView ivClearPwd;
+    private CheckBox cbSavePwd;
+    private CheckBox cbAutoLogin;
+
     private boolean mPwdIsShow = false;
+    private String mUserName;
+    private String mPwd;
 
 
     @Override
@@ -36,7 +46,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         setContentView(R.layout.activity_login);
 
         initView();
+        initListener();
     }
+
 
     private void initView() {
 
@@ -45,57 +57,134 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         mBack.setVisibility(View.GONE);
         mTitle.setText("用户登录");
 
-        mUser = (EditText) findViewById(R.id.user);
-        mPwd = (EditText) findViewById(R.id.pwd);
-        mLogin = (TextView) findViewById(R.id.login);
-        mNewUser = (TextView) findViewById(R.id.newUser);
+        etUserName = (EditText) findViewById(R.id.userName);
+        ivClearUserName = (ImageView) findViewById(R.id.clearUserName);
+        etPwd = (EditText) findViewById(R.id.pwd);
+        tvLogin = (TextView) findViewById(R.id.login);
+        tvNewUser = (TextView) findViewById(R.id.newUser);
 
-        mShowPwd = (ImageView) findViewById(R.id.showPwd);
+        ivClearPwd = (ImageView) findViewById(R.id.clearPwd);
+        ivShowPwd = (ImageView) findViewById(R.id.showPwd);
         if (mPwdIsShow) {
-            mShowPwd.setImageDrawable(getDrawable(R.drawable.pwd_show));
+            ivShowPwd.setImageDrawable(getDrawable(R.drawable.pwd_show));
         } else {
-            mShowPwd.setImageDrawable(getDrawable(R.drawable.pwd_hide));
+            ivShowPwd.setImageDrawable(getDrawable(R.drawable.pwd_hide));
         }
-        mSavePad = (RadioButton) findViewById(R.id.savePad);
-        mAutoLogin = (RadioButton) findViewById(R.id.autoLogin);
+
+        cbSavePwd = (CheckBox) findViewById(R.id.cbSavePwd);
+        cbAutoLogin = (CheckBox) findViewById(R.id.cbAutoLogin);
 
 
         mBack.setOnClickListener(this);
-        mShowPwd.setOnClickListener(this);
-        mLogin.setOnClickListener(this);
-        mNewUser.setOnClickListener(this);
-
+        ivClearUserName.setOnClickListener(this);
+        ivClearPwd.setOnClickListener(this);
+        ivShowPwd.setOnClickListener(this);
+        tvLogin.setOnClickListener(this);
+        tvNewUser.setOnClickListener(this);
     }
+
+    private void initListener() {
+
+        //用户名: 将光标移动到内容最后面
+        etUserName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                if (!StringUtiles.isEnStr(etUserName.getText().toString().trim())) {
+//                    showToast("只能输入英文字母");
+//                    return;
+//                }
+//                try {
+//
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                etUserName.setSelection(s.length());                  //将光标移至文字末尾
+                mUserName = etUserName.getText().toString().trim();
+            }
+        });
+
+        //密码框: 将光标移动到内容最后面
+        etPwd.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                etPwd.setSelection(s.length());
+                mPwd = etPwd.getText().toString().trim();
+            }
+        });
+
+        //保存密码
+        cbSavePwd.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("geaosu", cbSavePwd.getText().toString() + "  ---->>  选中状态: selected = " + isChecked);
+
+            }
+        });
+
+        //自动登录
+        cbAutoLogin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("geaosu", cbAutoLogin.getText().toString() + "  ---->>  选中状态: selected = " + isChecked);
+
+            }
+        });
+    }
+
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.clearPwd:
+                etPwd.setText("");
+                break;
+            case R.id.clearUserName:
+                etUserName.setText("");
+                break;
             case R.id.showPwd:
                 if (mPwdIsShow) {
                     //设置密码不可见
                     mPwdIsShow = false;
-                    mShowPwd.setImageDrawable(getDrawable(R.drawable.pwd_hide));
-                    mPwd.setInputType(EditorInfo.TYPE_TEXT_VARIATION_PASSWORD);
+                    ivShowPwd.setImageDrawable(getDrawable(R.drawable.pwd_hide));
+                    //从密码可见模式变为密码不可见模式
+                    etPwd.setTransformationMethod(PasswordTransformationMethod.getInstance());
                 } else {
                     //设置密码可见
                     mPwdIsShow = true;
-                    mShowPwd.setImageDrawable(getDrawable(R.drawable.pwd_show));
-                    mPwd.setInputType(EditorInfo.TYPE_CLASS_TEXT);
+                    ivShowPwd.setImageDrawable(getDrawable(R.drawable.pwd_show));
+                    //从密码不可见模式变为密码可见模式
+                    etPwd.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
                 }
                 break;
             case R.id.login:
-                final String userName = mUser.getText().toString();
-                if (TextUtils.isEmpty(userName)) {
+                if (TextUtils.isEmpty(mUserName)) {
                     Toast.makeText(LoginActivity.this, "用户名不能为空", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                final String pwd = mPwd.getText().toString();
-                if (TextUtils.isEmpty(pwd)) {
+                if (TextUtils.isEmpty(mPwd)) {
                     Toast.makeText(LoginActivity.this, "密码不能为空", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
 
 
                 //登录
@@ -108,7 +197,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 //                }).start();
 
                 showLoading("登录中");
-                EMClient.getInstance().login(userName, pwd, new EMCallBack() {
+                EMClient.getInstance().login(mUserName, mPwd, new EMCallBack() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
